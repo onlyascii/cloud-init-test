@@ -1,6 +1,6 @@
 # Cloud-Init Test
 
-While working with [Raspberry PI Ubuntu images] to build my local [Kubernetes] cluster, I found out that [cloud-init] is the key bootstrap igredient.
+While working with [Raspberry PI Ubuntu images] to build my local [Kubernetes] cluster, I found out that [cloud-init] is the key bootstrap ingredient.
 Seems that the tool to try all different configurations is [Vagrant].
 
 # Links
