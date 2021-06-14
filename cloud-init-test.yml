@@ -1,0 +1,54 @@
+packages:
+  - docker.io
+  - kubelet
+  - kubeadm
+  - kubectl
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - avahi-daemon
+  - libnss-mdns
+  - helm
+  - ebtables
+  - ethtool
+
+users:
+  - name: test_user_unique_name
+    groups: sudo
+    homedir: /custom/home/dir
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    # ssh-authorized-keys:
+    #   - ssh-rsa USE_YOUR_RSA_KEY_HERE_IF_NEEDED
+
+apt_upgrade: true
+
+apt:
+  sources:
+    kubernetes:
+      source: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+    helm:
+      source: 'deb https://baltocdn.com/helm/stable/debian/ all main'
+
+bootcmd:
+ - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+ - curl -s https://baltocdn.com/helm/signing.asc | sudo apt-key add
+
+write_files:
+- content: |
+    {
+      "exec-opts": ["native.cgroupdriver=systemd"],
+      "log-driver": "json-file",
+      "log-opts": {
+        "max-size": "100m"
+      },
+      "storage-driver": "overlay2"
+    }
+  path: /etc/docker/daemon.json
+- content: |
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.bridge.bridge-nf-call-iptables = 1
+  path: /etc/sysctl.d/k8s.conf
+- content: |
+    br_netfilter
+  path: /etc/modules-load.d/k8s.conf
