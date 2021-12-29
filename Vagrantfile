@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
   config.vm.define :master do |master|
     master.vm.box = "focal-server-cloudimg-amd64-vagrant"
     master.vm.hostname = "master"
-    master.vm.network :private_network, ip: "10.0.0.10"
+    master.vm.network :private_network, ip: "192.168.56.10"
     master.vm.provision :shell, privileged: false, inline: $provision_master_node
   end
 
@@ -28,10 +28,10 @@ Vagrant.configure("2") do |config|
     config.vm.define name do |worker|
     worker.vm.box = "focal-server-cloudimg-amd64-vagrant"
     worker.vm.hostname = name
-    worker.vm.network :private_network, ip: "10.0.0.#{i + 11}"
+    worker.vm.network :private_network, ip: "192.168.56.#{i + 11}"
     worker.vm.provision :shell, privileged: false, inline: <<-SHELL
 sudo /vagrant/join.sh
-echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.#{i + 11}"' | sudo tee -a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.56.#{i + 11}"' | sudo tee -a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 SHELL
@@ -51,7 +51,7 @@ OUTPUT_FILE=/vagrant/join.sh
 rm -rf $OUTPUT_FILE
 
 # Start cluster
-sudo kubeadm init --apiserver-advertise-address=10.0.0.10 --pod-network-cidr=192.168.0.0/16
+sudo kubeadm init --apiserver-advertise-address=192.168.56.10 --pod-network-cidr=192.168.0.0/16
 
 # Configure kubectl
 mkdir -p $HOME/.kube
@@ -64,7 +64,7 @@ kubeadm token create --print-join-command > ${OUTPUT_FILE}
 chmod +x $OUTPUT_FILE
 
 # Fix kubelet IP
-echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.10"' | sudo tee -a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.56.10"' | sudo tee -a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
 # Configure flannel
 # kubectl create -f /vagrant/kube-flannel1.yml
